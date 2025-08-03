@@ -1,146 +1,154 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!DOCTYPE html><html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vanish Pay</title>
-  <link rel="icon" type="image/png" href="favicon.png">
   <style>
     body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
       background-color: #000;
       color: #fff;
-      font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      justify-content: flex-start;
       min-height: 100vh;
+      padding: 20px;
     }
-
     h1 {
       font-size: 24px;
       margin-bottom: 20px;
-      color: #ffffff;
     }
-
-    input, button {
-      width: 90%;
-      max-width: 300px;
-      margin: 8px 0;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 16px;
+    label {
+      display: block;
+      font-size: 14px;
+      margin-top: 15px;
+      margin-bottom: 5px;
     }
-
     input {
-      background-color: #1a1a1a;
-      color: #fff;
-    }
-
-    button {
-      background-color: #ffffff;
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background-color: #ccc;
-    }
-
-    .output {
-      margin-top: 24px;
-      text-align: center;
-      word-break: break-word;
-    }
-
-    .qr-code {
-      margin-top: 16px;
-    }
-
-    .copy-button {
-      margin-top: 10px;
+      width: 100%;
+      max-width: 400px;
       padding: 10px;
-      background-color: #333;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      background-color: #1c1c1c;
       color: #fff;
-      border: 1px solid #666;
     }
-
-    .copy-button:active {
-      background-color: #555;
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      max-width: 400px;
+      font-size: 16px;
+      background-color: #fff;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #resultado {
+      margin-top: 30px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    img {
+      margin-top: 15px;
+      max-width: 100%;
+    }
+    .pix-code {
+      background: #1c1c1c;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 10px;
+      font-size: 12px;
+      word-wrap: break-word;
+    }
+    .copy-btn {
+      margin-top: 10px;
+      background: #444;
+      color: #fff;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>Vanish Pay</h1>
+  <h1>Vanish Pay</h1><label for="nome">Nome:</label> <input type="text" id="nome" value="João da Silva">
 
-  <input type="text" id="name" placeholder="Nome">
-  <input type="email" id="email" placeholder="Email">
-  <input type="text" id="cpf" placeholder="CPF">
-  <input type="number" id="amount" placeholder="Valor (R$)">
-  <button onclick="gerarPix()">Gerar Pix</button>
+<label for="email">Email:</label> <input type="email" id="email" value="joao@example.com">
 
-  <div class="output" id="output" style="display: none;">
-    <p><strong>Status:</strong> <span id="status">PENDING</span></p>
-    <p><strong>Código Pix (copia e cola):</strong></p>
-    <p id="codigo"></p>
-    <button class="copy-button" onclick="copiarPix()">Copiar Pix</button>
-    <div class="qr-code">
-      <p><strong>QR Code:</strong></p>
-      <img id="qrCode" src="" alt="QR Code Pix" width="200">
-    </div>
-  </div>
+<label for="cpf">CPF:</label> <input type="text" id="cpf" value="12345678901">
 
-  <script>
+<label for="valor">Valor (R$):</label> <input type="number" id="valor" value="50">
+
+<button onclick="gerarPix()">Gerar Pix</button>
+
+  <div id="resultado"></div>  <script>
     async function gerarPix() {
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const cpf = document.getElementById("cpf").value;
-      const amount = document.getElementById("amount").value;
+      const nome = document.getElementById('nome').value;
+      const email = document.getElementById('email').value;
+      const cpf = document.getElementById('cpf').value;
+      const valor = parseFloat(document.getElementById('valor').value) * 100;
+
+      const resultado = document.getElementById('resultado');
+      resultado.innerHTML = '<p>Gerando Pix...</p>';
 
       const payload = {
-        document: cpf,
+        name: nome,
         email: email,
-        name: name,
-        value: Number(amount)
-      };
-
-      const headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer SUA_API_KEY"
+        cpf: cpf,
+        phone: "11999999999",
+        paymentMethod: "PIX",
+        amount: valor,
+        traceable: true,
+        externalId: "pedido_" + Date.now(),
+        postbackUrl: "https://seudominio.com.br/webhook/pix",
+        items: [
+          {
+            unitPrice: valor,
+            title: "Produto Personalizado",
+            quantity: 1,
+            tangible: false
+          }
+        ]
       };
 
       try {
-        const response = await fetch("https://app.ghostspaysv1.com/api/v1/transaction/purchase", {
+        const response = await fetch("https://app.ghostspaysv1.com/api/v1/transaction.purchase", {
           method: "POST",
-          headers: headers,
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "d44908c2-c9fc-41a8-8c8c-d6838b3f0e84"
+          },
           body: JSON.stringify(payload)
         });
 
         const data = await response.json();
+        const pixCode = data.pixCode || 'Não gerado';
 
-        if (data?.pix?.qrcode && data?.pix?.image) {
-          document.getElementById("output").style.display = "block";
-          document.getElementById("codigo").textContent = data.pix.qrcode;
-          document.getElementById("qrCode").src = data.pix.image;
-        } else {
-          alert("Erro ao gerar o Pix. Verifique os dados.");
-        }
-
-      } catch (error) {
-        alert("Erro ao conectar com a API.");
-        console.error(error);
+        resultado.innerHTML = `
+          <p><b>Status:</b> ${data.status}</p>
+          <div class="pix-code" id="pixCode">${pixCode}</div>
+          <button class="copy-btn" onclick="copiarPix()">Copiar Código Pix</button>
+          <img src="${data.pixQrCode}" alt="QR Code Pix">
+        `;
+      } catch (err) {
+        resultado.innerHTML = '<p style="color:red">Erro ao gerar Pix: ' + err.message + '</p>';
       }
     }
 
     function copiarPix() {
-      const codigo = document.getElementById("codigo").textContent;
+      const codigo = document.getElementById("pixCode").innerText;
       navigator.clipboard.writeText(codigo).then(() => {
         alert("Código Pix copiado!");
       });
     }
-  </script>
-</body>
-</html>
+  </script></body>
+                                    </html>
