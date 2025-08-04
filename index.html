@@ -3,7 +3,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vanish Pay</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
   <style>
     body {
       background-color: #000;
@@ -48,15 +48,15 @@
 <body>
   <h1>Vanish Pay</h1>
   <form id="pixForm">
-    <input type="text" id="name" placeholder="Nome:" required>
-    <input type="email" id="email" placeholder="Email:" required>
-    <input type="text" id="cpf" placeholder="CPF:" required>
-    <input type="number" id="value" placeholder="Valor (R$):" step="0.01" required>
+    <input type="text" id="name" placeholder="Nome:" value="João da Silva" required>
+    <input type="email" id="email" placeholder="Email:" value="joao@example.com" required>
+    <input type="text" id="cpf" placeholder="CPF:" value="12345678901" required>
+    <input type="number" id="value" placeholder="Valor (R$):" step="0.01" value="149.90" required>
     <button type="submit">Gerar Pix</button>
   </form>  <p><strong>Status:</strong> <span id="status">PENDING</span></p>
   <textarea id="pixCode" rows="4" readonly></textarea>
   <button id="copyBtn">Copiar Código Pix</button>
-  <img id="pixQr" alt="QR Code">  <script>
+  <img id="qrCodeImage" alt="QR Code" style="display:none; margin: 20px auto; max-width: 300px;" />  <script>
     document.getElementById("pixForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
@@ -96,8 +96,13 @@
 
         document.getElementById("status").innerText = data.status;
         document.getElementById("pixCode").value = data.qr_code;
-        document.getElementById("pixQr").src = data.qr_code_base64;
         document.getElementById("copyBtn").style.display = "block";
+
+        if (data.qr_code_base64) {
+          document.getElementById("qrCodeImage").src = 'data:image/png;base64,' + data.qr_code_base64;
+          document.getElementById("qrCodeImage").style.display = "block";
+        }
+
       } catch (err) {
         alert("Erro de conexão. Tente novamente.");
       }
@@ -110,4 +115,4 @@
       });
     });
   </script></body>
-  </html>
+    </html>
