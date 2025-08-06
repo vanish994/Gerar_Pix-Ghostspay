@@ -602,4 +602,17 @@
                     statusElement.innerHTML = `<p>Status: ${data.status || "Indisponível"}</p>`;
                 }
             })
-            .c
+            .catch(() => {
+                const statusElement = document.getElementById("payment-status");
+                statusElement.className = "error";
+                statusElement.innerHTML = "<p>❌ Erro ao verificar pagamento</p>";
+            });
+        }
+
+        // Inicialização
+        document.getElementById("verify-payment-btn").disabled = true;
+        document.getElementById("new-payment-btn").disabled = true;
+    </script>
+</body>
+</html>
+
