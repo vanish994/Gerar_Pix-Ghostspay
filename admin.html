@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Pagamentos PIX</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0e0e0e;
+      color: #e0e0e0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #44ff44;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1a1a1a;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background: #222;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background-color: #121212;
+    }
+    tr:hover {
+      background-color: #2a2a2a;
+    }
+    .container {
+      max-width: 960px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Pagamentos Aprovados - Vanish Pay</h1>
+    <table id="tabela">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Valor (R$)</th>
+          <th>Descrição</th>
+          <th>Data</th>
+          <th>Cliente</th>
+          <th>Email</th>
+          <th>CPF</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    fetch("/pagamentos")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("tbody");
+        data.forEach(p => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${p.id}</td>
+            <td>${(p.valor / 100).toFixed(2)}</td>
+            <td>${p.descricao}</td>
+            <td>${new Date(p.aprovadoEm).toLocaleString()}</td>
+            <td>${p.nome}</td>
+            <td>${p.email}</td>
+            <td>${p.cpf}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      });
+  </script>
+</body>
+</html>

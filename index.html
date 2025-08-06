@@ -369,7 +369,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Vanish Pay</h1>
+        <img src="icon-192.png" alt="Logo Vanish Pay" style="display:block;margin:0 auto 16px;width:96px;border-radius:12px;">
+<h1>Vanish Pay</h1>
         
         <div id="payment-form">
             <label for="amount">Valor (R$)</label>
@@ -382,6 +383,7 @@
         </div>
         
         <div id="pix-payment" class="hidden">
+<img src="icon-192.png" alt="Hacker Icon" style="display:block;margin:0 auto 16px;width:96px;border-radius:8px;">
             <p style="text-align: center; margin-bottom: 16px; color: #b0b0b0;">Escaneie o QR Code ou copie o código PIX:</p>
             <div id="qrcode"></div>
             <div class="pix-code" id="pix-code" onclick="copyPixCode()" title="Clique para copiar o código PIX"></div>
@@ -594,6 +596,18 @@
                         "<p style=\"font-weight:bold;\">✅ Pagamento aprovado com sucesso!</p>";
                     statusElement.innerHTML += `<p>Valor: R$ ${(data.amount/100).toFixed(2)}</p>`;
                     statusElement.innerHTML += `<p>Data: ${new Date(data.approvedAt).toLocaleString()}</p>`;
+fetch("/registrar-pagamento", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    paymentId: data.id,
+    valor: data.amount,
+    aprovadoEm: data.approvedAt,
+    descricao: data.items?.[0]?.title || "PIX",
+    cliente: data.customer
+  })
+});
+
                 } else if (data.status === "PENDING") {
                     statusElement.className = "pending";
                     statusElement.innerHTML = "<p>⏳ Pagamento pendente...</p>";
